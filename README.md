@@ -2,4 +2,4 @@
 
 ## Makefile
 
-* all: run the crawl
+* run (default): run the crawl for Lake Chelan July 1 - July 5.
