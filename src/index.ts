@@ -13,7 +13,7 @@ async function waitAndClick(page: any, selector: string): Promise<void> {
         logger.info(`Waiting for ${selector}`);
         await page.waitFor(selector, { visible: true });
 
-        logger.info(`Clicking ${selector}`);
+        logger.info(`Picking ${selector}`);
         await page.click(selector);
     } catch (e) {
         page.screenshot({path: 'error.png', fullPage: true});
@@ -27,7 +27,7 @@ async function waitAndEnter(page: any, selector: string, value: string): Promise
 }
 
 (async () => {
-    const browser = await puppeteer.launch({ headless: true, defaultViewport: null });
+    const browser = await puppeteer.launch({ headless: true, defaultViewport: {width: 1200, height: 800} });
     const page = await browser.newPage();
     try {
         await page.goto('https://washington.goingtocamp.com', { timeout: 0, waitUntil: 'load' });
@@ -84,7 +84,7 @@ async function waitAndEnter(page: any, selector: string, value: string): Promise
     await waitAndClick(page, "button#actionSearch");
 
     /**
-     * MAP VIEW
+     * LIST VIEW
      */
     await waitAndClick(page, "button#mat-button-toggle-2-button");
 
@@ -94,7 +94,8 @@ async function waitAndEnter(page: any, selector: string, value: string): Promise
     logger.info(`Waiting for availability to load: "div.availability-panel"`);
     await page.waitFor("app-list-view");
 
-    // TODO: This is not accurate, the animation might be misleading. Probably needs to look into Responses or animation?
+    // Wait for 3 seconds before all the availability spots are shown.
+    await page.waitFor(3000);
     const availabilitySelector = "div.resource-availability fa-icon.icon-available";
     const availableIds = await page.$$eval(availabilitySelector, avs => avs.map(a => a.parentElement?.id));
     logger.info(`Found ${availableIds.length}: ${availableIds}`);
