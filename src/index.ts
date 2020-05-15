@@ -8,15 +8,25 @@ const logger = winston.createLogger({
     ]
 });
 
+let i = 0;
 async function waitAndClick(page: any, selector: string): Promise<void> {
+    await page.screenshot({
+        path: `out/${i.toString().padStart(4, '0')}.${selector}.pre.png`,
+        fullPage: true
+    });
     try {
         logger.info(`Waiting for ${selector}`);
         await page.waitFor(selector, { visible: true });
 
         logger.info(`Picking ${selector}`);
         await page.click(selector);
+        await page.screenshot({
+            path: `out/${i.toString().padStart(4, '0')}.${selector}.post.png`,
+            fullPage: true
+        });
+        i++;
     } catch (e) {
-        page.screenshot({path: 'error.png', fullPage: true});
+        await page.screenshot({ path: 'error.png', fullPage: true });
         logger.error(`Error reading selector ${selector}: `, e);
     }
 }
@@ -27,7 +37,7 @@ async function waitAndEnter(page: any, selector: string, value: string): Promise
 }
 
 (async () => {
-    const browser = await puppeteer.launch({ headless: true, defaultViewport: {width: 1200, height: 800} });
+    const browser = await puppeteer.launch({ headless: true, defaultViewport: { width: 1200, height: 800 } });
     const page = await browser.newPage();
     try {
         await page.goto('https://washington.goingtocamp.com', { timeout: 0, waitUntil: 'load' });
@@ -55,7 +65,7 @@ async function waitAndEnter(page: any, selector: string, value: string): Promise
      */
     // JULY 5  3 3 2 1
     // SEP 9: 4 1 3 4
-    
+
     // DOES NOT WORK IN HEADLESS!
     await waitAndClick(page, "input[formcontrolname=departureDate]"); // picker
     await waitAndClick(page, "button#monthDropdownPicker"); // month
