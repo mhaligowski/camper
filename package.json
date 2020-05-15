@@ -9,16 +9,16 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "puppeteer": "^3.0.2",
+    "puppeteer": "^3.0.4",
     "tsc": "^1.20150623.0",
-    "typescript": "^3.8.3",
+    "typescript": "^3.9.2",
     "winston": "^3.2.1"
   },
   "devDependencies": {
     "@babel/core": "^7.9.6",
     "@babel/preset-env": "^7.9.6",
     "@babel/preset-typescript": "^7.9.0",
-    "@types/puppeteer": "^2.0.1",
+    "@types/puppeteer": "^2.1.0",
     "babel-jest": "^26.0.1",
     "jest": "^26.0.1",
     "ts-node": "^8.10.1"
