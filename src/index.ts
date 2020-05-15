@@ -96,7 +96,7 @@ async function waitAndEnter(page: any, selector: string, value: string): Promise
     /**
      * LIST VIEW
      */
-    await waitAndClick(page, "button#mat-button-toggle-2-button");
+    await waitAndClick(page, "mat-button-toggle-group.btn-search-results-toggle mat-button-toggle:nth-child(2)");
 
     /**
      * FIND AVAILABLE SPOTS
