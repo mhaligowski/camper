@@ -1,5 +1,5 @@
 import winston from 'winston';
-import puppeteer from 'puppeteer';
+import puppeteer, { Page } from 'puppeteer';
 
 const logger = winston.createLogger({
     level: 'debug',
@@ -14,6 +14,7 @@ async function waitAndClick(page: any, selector: string): Promise<void> {
         path: `out/${i.toString().padStart(4, '0')}.${selector}.pre.png`,
         fullPage: true
     });
+
     try {
         logger.info(`Waiting for ${selector}`);
         await page.waitFor(selector, { visible: true, timeout: 60000 });
@@ -27,8 +28,10 @@ async function waitAndClick(page: any, selector: string): Promise<void> {
     } catch (e) {
         await page.screenshot({ path: 'error.png', fullPage: true });
         logger.error(`Error reading selector ${selector}: `, e);
+        throw e;
+    } finally {
+        i++;
     }
-    i++;
 }
 
 async function waitAndEnter(page: any, selector: string, value: string): Promise<void> {
@@ -36,18 +39,7 @@ async function waitAndEnter(page: any, selector: string, value: string): Promise
     await page.keyboard.type(value);
 }
 
-(async () => {
-    const browser = await puppeteer.launch({ headless: true, defaultViewport: { width: 1200, height: 800 } });
-    const version = await browser.version();
-    logger.info(`Browser version: ${version}`);
-    const page = await browser.newPage();
-    try {
-        logger.info("Going to the website...");
-        await page.goto('https://washington.goingtocamp.com', { timeout: 0, waitUntil: 'load' });
-    } catch (e) {
-        logger.error(e);
-    }
-
+async function crawl(page: Page): Promise<void> {
     /**
      * PARK SELECTION
      */
@@ -130,5 +122,28 @@ async function waitAndEnter(page: any, selector: string, value: string): Promise
      */
 
     await page.screenshot({ path: 'example.png', fullPage: true });
-    await browser.close();
-})();
+}
+
+async function run() {
+    const browser = await puppeteer.launch({ headless: true, defaultViewport: { width: 1200, height: 800 } });
+    const version = await browser.version();
+    logger.info(`Browser version: ${version}`);
+    const page = await browser.newPage();
+    try {
+        logger.info("Going to the website...");
+        await page.goto('https://washington.goingtocamp.com', { timeout: 0, waitUntil: 'load' });
+    } catch (e) {
+        logger.error(e);
+    }
+
+    try {
+        await crawl(page);
+    } catch (e) {
+        logger.error(e);
+    } finally {
+        logger.info("Closing the browser.");
+        await browser.close();
+    }
+};
+
+export {run};

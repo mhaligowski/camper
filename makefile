@@ -1,5 +1,5 @@
 run: out
-	npx ts-node ./src/index.ts
+	npx ts-node ./src/run.ts
 
 out:
 	mkdir $@
