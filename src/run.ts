@@ -1,3 +1,6 @@
+import { getLogger } from "./log";
 import { run } from "./index";
 
-run().catch(console.error);
+const logger = getLogger();
+
+run().catch(logger.info);

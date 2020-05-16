@@ -1,12 +1,7 @@
-import winston from 'winston';
+import { getLogger } from './log';
 import puppeteer, { Page } from 'puppeteer';
 
-const logger = winston.createLogger({
-    level: 'debug',
-    transports: [
-        new winston.transports.Console({ format: winston.format.simple() }),
-    ]
-});
+const logger = getLogger();
 
 let i = 0;
 async function waitAndClick(page: any, selector: string): Promise<void> {
@@ -146,4 +141,4 @@ async function run() {
     }
 };
 
-export {run};
+export { run };
