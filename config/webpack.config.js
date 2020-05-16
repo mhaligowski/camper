@@ -41,5 +41,7 @@ module.exports = {
     output: {
         filename: 'index.js',
         path: path.resolve(rootDir, 'dist'),
+        library: 'crawl',
+        libraryTarget: 'commonjs2'
     },
 };
