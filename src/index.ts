@@ -16,7 +16,7 @@ async function waitAndClick(page: any, selector: string): Promise<void> {
     });
     try {
         logger.info(`Waiting for ${selector}`);
-        await page.waitFor(selector, { visible: true });
+        await page.waitFor(selector, { visible: true, timeout: 60000 });
 
         logger.info(`Picking ${selector}`);
         await page.click(selector);
@@ -24,11 +24,11 @@ async function waitAndClick(page: any, selector: string): Promise<void> {
             path: `out/${i.toString().padStart(4, '0')}.${selector}.post.png`,
             fullPage: true
         });
-        i++;
     } catch (e) {
         await page.screenshot({ path: 'error.png', fullPage: true });
         logger.error(`Error reading selector ${selector}: `, e);
     }
+    i++;
 }
 
 async function waitAndEnter(page: any, selector: string, value: string): Promise<void> {
@@ -47,6 +47,7 @@ async function waitAndEnter(page: any, selector: string, value: string): Promise
     } catch (e) {
         logger.error(e);
     }
+
     /**
      * PARK SELECTION
      */
@@ -89,7 +90,7 @@ async function waitAndEnter(page: any, selector: string, value: string): Promise
     /**
      * PARTY SIZE
      */
-    await waitAndEnter(page, "input[formcontrolname=partySize]", "4");
+    await waitAndEnter(page, "input[formcontrolname=partySize]", "4"); // 4 people
 
     /**
      * CLICK BUTTON
@@ -107,11 +108,26 @@ async function waitAndEnter(page: any, selector: string, value: string): Promise
     logger.info(`Waiting for availability to load: "div.availability-panel"`);
     await page.waitFor("app-list-view");
 
-    // Wait for 3 seconds before all the availability spots are shown.
+    /**
+     * MAKE SURE ONLY THE AVAILABLE ONES ARE VISIBLE.
+     */
+    logger.info("Limit only to the interesting ones.");
+    await waitAndClick(page, "mat-checkbox[formcontrolname=compareEnabled]");
+
+    // Wait for 3 seconds before all the availability spots are shown. Better idea may be to wait for all the elements to have the opacity of 1.
     await page.waitFor(3000);
     const availabilitySelector = "div.resource-availability fa-icon.icon-available";
-    const availableIds = await page.$$eval(availabilitySelector, avs => avs.map(a => a.parentElement?.id));
+    const availableIds = await page.$$eval(availabilitySelector, avs => avs.map(a => a.parentElement?.id as string));
     logger.info(`Found ${availableIds.length}: ${availableIds}`);
+
+    /**
+     * GO LOOK FOR DETAILS.
+     */
+    /**
+    logger.info('Going to the first page.');
+    const first: string = availableIds[0];
+    await waitAndClick(page, `#${first}`);
+     */
 
     await page.screenshot({ path: 'example.png', fullPage: true });
     await browser.close();
