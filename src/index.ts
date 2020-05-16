@@ -38,8 +38,11 @@ async function waitAndEnter(page: any, selector: string, value: string): Promise
 
 (async () => {
     const browser = await puppeteer.launch({ headless: true, defaultViewport: { width: 1200, height: 800 } });
+    const version = await browser.version();
+    logger.info(`Browser version: ${version}`);
     const page = await browser.newPage();
     try {
+        logger.info("Going to the website...");
         await page.goto('https://washington.goingtocamp.com', { timeout: 0, waitUntil: 'load' });
     } catch (e) {
         logger.error(e);
