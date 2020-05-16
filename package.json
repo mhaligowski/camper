@@ -2,16 +2,10 @@
   "name": "camper",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "puppeteer": "^3.0.4",
-    "tsc": "^1.20150623.0",
-    "typescript": "^3.9.2",
     "winston": "^3.2.1"
   },
   "devDependencies": {
@@ -21,7 +15,14 @@
     "@types/node": "^14.0.1",
     "@types/puppeteer": "^2.1.0",
     "babel-jest": "^26.0.1",
+    "generate-package-json-webpack-plugin": "^1.0.1",
     "jest": "^26.0.1",
-    "ts-node": "^8.10.1"
+    "ts-loader": "^7.0.4",
+    "ts-node": "^8.10.1",
+    "tsc": "^1.20150623.0",
+    "typescript": "^3.9.2",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.11",
+    "webpack-node-externals": "^1.7.2"
   }
 }

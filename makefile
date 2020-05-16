@@ -5,6 +5,9 @@ out:
 	mkdir $@
 
 clean:
-	rm -rf out
+	rm -rf {out,dist}
+
+build: ./config/webpack.config.js
+	npx webpack --mode=development --config=$^
 
 PHONY: clean run
