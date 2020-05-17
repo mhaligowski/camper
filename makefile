@@ -7,7 +7,14 @@ out:
 clean:
 	rm -rf {out,dist}
 
-build: ./config/webpack.config.js
+dist: ./config/webpack.config.js
 	npx webpack --mode=development --config=$^
+
+deploy: dist
+	gcloud functions deploy crawl \
+		--source=$^ \
+		--runtime=nodejs10 \
+		--trigger-topic=trigger
+		--memeory=2GB
 
 PHONY: clean run
