@@ -1,12 +1,13 @@
+import path from "path";
 import { getLogger } from './log';
 import puppeteer, { Page } from 'puppeteer';
 
 const logger = getLogger();
 
 let i = 0;
-async function waitAndClick(page: any, selector: string): Promise<void> {
+async function waitAndClick(page: any, selector: string, outDir = "out"): Promise<void> {
     await page.screenshot({
-        path: `out/${i.toString().padStart(4, '0')}.${selector}.pre.png`,
+        path: path.join(outDir, `${i.toString().padStart(4, '0')}.${selector}.pre.png`),
         fullPage: true
     });
 
@@ -17,11 +18,11 @@ async function waitAndClick(page: any, selector: string): Promise<void> {
         logger.info(`Picking ${selector}`);
         await page.click(selector);
         await page.screenshot({
-            path: `out/${i.toString().padStart(4, '0')}.${selector}.post.png`,
+            path: path.join(outDir, `${i.toString().padStart(4, '0')}.${selector}.post.png`),
             fullPage: true
         });
     } catch (e) {
-        await page.screenshot({ path: 'error.png', fullPage: true });
+        await page.screenshot({ path: path.join(outDir, 'error.png'), fullPage: true });
         logger.error(`Error reading selector ${selector}: `, e);
         throw e;
     } finally {
@@ -34,22 +35,22 @@ async function waitAndEnter(page: any, selector: string, value: string): Promise
     await page.keyboard.type(value);
 }
 
-async function crawl(page: Page): Promise<void> {
+async function crawl(page: Page, outDir?: string): Promise<void> {
     /**
      * PARK SELECTION
      */
-    await waitAndClick(page, "mat-select[formcontrolname=park]");
-    await waitAndClick(page, "mat-option#mat-option-33");
+    await waitAndClick(page, "mat-select[formcontrolname=park]", outDir);
+    await waitAndClick(page, "mat-option#mat-option-33", outDir);
 
     /**
      * ARRIVAL DATE
      */
     // JULY 1: 3 3 1 2
     // SEP 7: 4 1 3 2
-    await waitAndClick(page, "input[formcontrolname=arrivalDate]"); // picker
-    await waitAndClick(page, "button#monthDropdownPicker"); // month
-    await waitAndClick(page, "mat-year-view tr:nth-child(4) :nth-child(1)"); // pick July
-    await waitAndClick(page, "mat-month-view tbody tr:nth-child(3) :nth-child(2)"); // pick 1
+    await waitAndClick(page, "input[formcontrolname=arrivalDate]", outDir); // picker
+    await waitAndClick(page, "button#monthDropdownPicker", outDir); // month
+    await waitAndClick(page, "mat-year-view tr:nth-child(4) :nth-child(1)", outDir); // pick July
+    await waitAndClick(page, "mat-month-view tbody tr:nth-child(3) :nth-child(2)", outDir); // pick 1
 
     /**
      * DEPARTURE DATE
@@ -58,21 +59,21 @@ async function crawl(page: Page): Promise<void> {
     // SEP 9: 4 1 3 4
 
     // DOES NOT WORK IN HEADLESS!
-    await waitAndClick(page, "input[formcontrolname=departureDate]"); // picker
-    await waitAndClick(page, "button#monthDropdownPicker"); // month
-    await waitAndClick(page, "mat-year-view tr:nth-child(4) :nth-child(1)"); // pick July
-    await waitAndClick(page, "mat-month-view tbody tr:nth-child(3) :nth-child(4)"); // pick 5
+    await waitAndClick(page, "input[formcontrolname=departureDate]", outDir); // picker
+    await waitAndClick(page, "button#monthDropdownPicker", outDir); // month
+    await waitAndClick(page, "mat-year-view tr:nth-child(4) :nth-child(1)", outDir); // pick July
+    await waitAndClick(page, "mat-month-view tbody tr:nth-child(3) :nth-child(4)", outDir); // pick 5
 
     /**
      * COVID-19
      */
-    await waitAndClick(page, "mat-checkbox#acknowledgement .mat-checkbox-inner-container");
+    await waitAndClick(page, "mat-checkbox#acknowledgement .mat-checkbox-inner-container", outDir);
 
     /**
      * EQUIPMENT SELECTION
      */
-    await waitAndClick(page, "mat-select[formcontrolname=equipment]");
-    await waitAndClick(page, "mat-option#mat-option-75"); // 1 Tent
+    await waitAndClick(page, "mat-select[formcontrolname=equipment]", outDir);
+    await waitAndClick(page, "mat-option#mat-option-75", outDir); // 1 Tent
 
     /**
      * PARTY SIZE
@@ -82,12 +83,12 @@ async function crawl(page: Page): Promise<void> {
     /**
      * CLICK BUTTON
      */
-    await waitAndClick(page, "button#actionSearch");
+    await waitAndClick(page, "button#actionSearch", outDir);
 
     /**
      * LIST VIEW
      */
-    await waitAndClick(page, "mat-button-toggle-group.btn-search-results-toggle mat-button-toggle:nth-child(2)");
+    await waitAndClick(page, "mat-button-toggle-group.btn-search-results-toggle mat-button-toggle:nth-child(2)", outDir);
 
     /**
      * FIND AVAILABLE SPOTS
@@ -99,7 +100,7 @@ async function crawl(page: Page): Promise<void> {
      * MAKE SURE ONLY THE AVAILABLE ONES ARE VISIBLE.
      */
     logger.info("Limit only to the interesting ones.");
-    await waitAndClick(page, "mat-checkbox[formcontrolname=compareEnabled]");
+    await waitAndClick(page, "mat-checkbox[formcontrolname=compareEnabled]", outDir);
 
     // Wait for 3 seconds before all the availability spots are shown. Better idea may be to wait for all the elements to have the opacity of 1.
     await page.waitFor(3000);
@@ -119,7 +120,11 @@ async function crawl(page: Page): Promise<void> {
     await page.screenshot({ path: 'example.png', fullPage: true });
 }
 
-async function run() {
+type RunParams = {
+    outDir: string
+}
+
+async function run(params?: RunParams) {
     const browser = await puppeteer.launch({
         headless: true,
         defaultViewport: { width: 1200, height: 800 },
@@ -136,7 +141,7 @@ async function run() {
     }
 
     try {
-        await crawl(page);
+        await crawl(page, params?.outDir);
     } catch (e) {
         logger.error(e);
     } finally {
