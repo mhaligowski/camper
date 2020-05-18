@@ -30,8 +30,8 @@ async function waitAndClick(page: any, selector: string, outDir = "out"): Promis
     }
 }
 
-async function waitAndEnter(page: any, selector: string, value: string): Promise<void> {
-    await waitAndClick(page, selector);
+async function waitAndEnter(page: any, selector: string, value: string, outDir = "out"): Promise<void> {
+    await waitAndClick(page, selector, outDir);
     await page.keyboard.type(value);
 }
 
@@ -78,7 +78,7 @@ async function crawl(page: Page, outDir?: string): Promise<void> {
     /**
      * PARTY SIZE
      */
-    await waitAndEnter(page, "input[formcontrolname=partySize]", "4"); // 4 people
+    await waitAndEnter(page, "input[formcontrolname=partySize]", "4", outDir); // 4 people
 
     /**
      * CLICK BUTTON
@@ -144,6 +144,7 @@ async function run(params?: RunParams) {
         await crawl(page, params?.outDir);
     } catch (e) {
         logger.error(e);
+        throw e;
     } finally {
         logger.info("Closing the browser.");
         await browser.close();
