@@ -117,7 +117,7 @@ async function crawl(page: Page, outDir?: string): Promise<void> {
     await waitAndClick(page, `#${first}`);
      */
 
-    await page.screenshot({ path: 'example.png', fullPage: true });
+    await page.screenshot({ path: `'${outDir}/result.png`, fullPage: true });
 }
 
 type RunParams = {
