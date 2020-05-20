@@ -15,6 +15,5 @@ deploy: dist
 		--source=$^ \
 		--runtime=nodejs10 \
 		--trigger-topic=trigger
-		--memeory=2GB
 
 PHONY: clean run
