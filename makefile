@@ -1,5 +1,5 @@
 run: out
-	npx ts-node ./src/run.ts
+	npx node -r ts-node/register -r dotenv/config ./src/run.ts
 
 out:
 	mkdir $@

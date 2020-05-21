@@ -10,8 +10,8 @@ export async function send(apiKey: string): Promise<void> {
     mail.setApiKey(apiKey);
 
     const msg = {
-        to: 'test@example.com',
-        from: 'test@example.com',
+        to: 'mhaligowski@gmail.com',
+        from: 'mhaligowski+camper@gmail.com',
         subject: 'Sending with Twilio SendGrid is Fun',
         text: 'and easy to do anywhere, even with Node.js',
         html: '<strong>and easy to do anywhere, even with Node.js</strong>',
