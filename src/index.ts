@@ -151,11 +151,14 @@ async function run(params?: RunParams): Promise<CrawlResult> {
     try {
         return crawl(page, params?.outDir);
     } catch (e) {
+        logger.error(`Error caught`);
         logger.error(e);
         throw e;
     } finally {
-        logger.info("Closing the browser.");
-        await browser.close();
+        if (browser.isConnected()) {
+            logger.info("Closing the browser.");
+            await browser.close();
+        }
     }
 };
 
