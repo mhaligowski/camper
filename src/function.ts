@@ -7,7 +7,6 @@ import { getLogger } from "./log";
 import { send } from "./sender";
 
 require('dotenv').config();
-
 const logger = getLogger();
 
 async function crawl() {
@@ -17,11 +16,21 @@ async function crawl() {
     logger.info(`Target directory: $(outDir}`);
 
 
-    await run({ outDir: outDir });
+    const result = await run({ outDir: outDir });
 
-    const sendmail_api_key = process.env.SENDGRID_API_KEY as string;
-    await send(sendmail_api_key);
-    
+    if (result.resultsSize == 0) {
+        logger.info("No results found.");
+        return;
+    }
+
+    try {
+        const sendmail_api_key = process.env.SENDGRID_API_KEY as string;
+        await send(sendmail_api_key);        
+    } catch (e) {
+        logger.error(e);
+        throw e;
+    }
+
     return;
 }
 
