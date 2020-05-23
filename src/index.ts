@@ -140,16 +140,21 @@ async function run(params?: RunParams): Promise<CrawlResult> {
     });
     const version = await browser.version();
     logger.info(`Browser version: ${version}`);
+    
     const page = await browser.newPage();
+
     try {
         logger.info("Going to the website...");
         await page.goto('https://washington.goingtocamp.com', { timeout: 0, waitUntil: 'load' });
     } catch (e) {
+        logger.error("Cannot go to the page");
         logger.error(e);
+        throw e;
     }
 
     try {
-        return crawl(page, params?.outDir);
+        const result = await crawl(page, params?.outDir);
+        return result;
     } catch (e) {
         logger.error(`Error caught`);
         logger.error(e);
