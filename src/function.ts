@@ -10,8 +10,9 @@ require('dotenv').config();
 const logger = getLogger();
 
 async function crawl() {
-    logger.info("Function started.");
-    logger.info('Service name: %j.', process.env.K_SERVICE);
+    logger.info("Function started. Service: %s, name: %s.",
+        process.env.K_SERVICE,
+        process.env.K_REVISION);
 
     const outDir = await fs.mkdtemp(`${tmpdir()}${sep}crawl`);
     logger.info(`Target directory: $(outDir}`);
@@ -26,7 +27,7 @@ async function crawl() {
 
     try {
         const sendmail_api_key = process.env.SENDGRID_API_KEY as string;
-        await send(sendmail_api_key);        
+        await send(sendmail_api_key);
     } catch (e) {
         logger.error(e);
         throw e;
