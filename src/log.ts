@@ -1,14 +1,18 @@
-import winston from "winston";
+import { Logger, format, transports, createLogger } from "winston";
 
 class LoggerFactory {
-    private static _instance: winston.Logger;
+    private static _instance: Logger;
 
-    public static getInstance(): winston.Logger {
+    public static getInstance(): Logger {
+
         if (!LoggerFactory._instance) {
-            LoggerFactory._instance = winston.createLogger({
+            LoggerFactory._instance = createLogger({
                 level: 'debug',
-                transports: [
-                    new winston.transports.Console({ format: winston.format.simple() }),
+                format: format.combine(
+                    format.splat(),
+                    format.simple()
+                ), transports: [
+                    new transports.Console(),
                 ]
             });
         }

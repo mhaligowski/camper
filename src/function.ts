@@ -10,7 +10,8 @@ require('dotenv').config();
 const logger = getLogger();
 
 async function crawl() {
-    logger.info("Function started");
+    logger.info("Function started.");
+    logger.info('Service name: %j.', process.env.K_SERVICE);
 
     const outDir = await fs.mkdtemp(`${tmpdir()}${sep}crawl`);
     logger.info(`Target directory: $(outDir}`);
