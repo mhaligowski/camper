@@ -57,8 +57,8 @@ async function crawl(page: Page, outDir?: string): Promise<CrawlResult> {
     // SEP 7: 4 1 3 2
     await waitAndClick(page, "input[formcontrolname=arrivalDate]", outDir); // picker
     await waitAndClick(page, "button#monthDropdownPicker", outDir); // month
-    await waitAndClick(page, "mat-year-view tr:nth-child(4) :nth-child(1)", outDir); // pick July
-    await waitAndClick(page, "mat-month-view tbody tr:nth-child(3) :nth-child(2)", outDir); // pick 1
+    await waitAndClick(page, "mat-year-view tr:nth-child(3) :nth-child(3)", outDir); // pick July
+    await waitAndClick(page, "mat-month-view tbody tr:nth-child(1) :nth-child(2)", outDir); // pick 1
 
     /**
      * DEPARTURE DATE
@@ -69,13 +69,17 @@ async function crawl(page: Page, outDir?: string): Promise<CrawlResult> {
     // DOES NOT WORK IN HEADLESS!
     await waitAndClick(page, "input[formcontrolname=departureDate]", outDir); // picker
     await waitAndClick(page, "button#monthDropdownPicker", outDir); // month
-    await waitAndClick(page, "mat-year-view tr:nth-child(4) :nth-child(1)", outDir); // pick July
-    await waitAndClick(page, "mat-month-view tbody tr:nth-child(3) :nth-child(4)", outDir); // pick 5
+    await waitAndClick(page, "mat-year-view tr:nth-child(3) :nth-child(3)", outDir); // pick July
+    await waitAndClick(page, "mat-month-view tbody tr:nth-child(2) :nth-child(1)", outDir); // pick 5
 
     /**
      * COVID-19
      */
-    await waitAndClick(page, "mat-checkbox#acknowledgement .mat-checkbox-inner-container", outDir);
+    try {
+        await waitAndClick(page, "mat-checkbox#acknowledgement .mat-checkbox-inner-container", outDir);
+    } catch (e) {
+        logger.info("Couldn't find the COVID-19 agreement, skipping.");
+    }
 
     /**
      * EQUIPMENT SELECTION
@@ -140,8 +144,9 @@ async function run(params?: RunParams): Promise<CrawlResult> {
     });
     const version = await browser.version();
     logger.info(`Browser version: ${version}`);
-    
+
     const page = await browser.newPage();
+    logger.info(`Opened new page `)
 
     try {
         logger.info("Going to the website...");
