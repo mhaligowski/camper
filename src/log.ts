@@ -6,7 +6,7 @@ class LoggerFactory {
 
     public static getInstance(): Logger {
 
-        const t = process.env.K_REVISION == "crawl.local" ?
+        const t = process.env.K_REVISION == "local" ?
             new transports.Console() :
             new LoggingWinston();
         if (!LoggerFactory._instance) {
