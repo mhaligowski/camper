@@ -9,14 +9,16 @@ class LoggerFactory {
         const t = process.env.K_REVISION == "local" ?
             new transports.Console() :
             new LoggingWinston();
+            
         if (!LoggerFactory._instance) {
             LoggerFactory._instance = createLogger({
                 level: 'debug',
                 format: format.combine(
                     format.splat(),
                     format.simple()
-                ), transports: [
-                    new transports.Console(),
+                ),
+                transports: [
+                    t,
                 ]
             });
         }

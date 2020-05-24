@@ -15,9 +15,7 @@ async function crawl() {
         process.env.K_REVISION);
 
     const outDir = await fs.mkdtemp(`${tmpdir()}${sep}crawl`);
-    logger.info(`Target directory: $(outDir}`);
-
-
+    logger.info(`Target directory: ${outDir}`);
     const result = await run({ outDir: outDir });
 
     if (result.resultsSize == 0) {
