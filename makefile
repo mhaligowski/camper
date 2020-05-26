@@ -1,5 +1,7 @@
+NPX=npx
+
 run: out
-	npx node -r ts-node/register -r dotenv/config ./src/run.ts
+	$(NPX) node -r ts-node/register -r dotenv/config ./src/run.ts
 
 out:
 	mkdir $@
@@ -16,4 +18,7 @@ deploy: dist
 		--runtime=nodejs10 \
 		--trigger-topic=trigger
 
-PHONY: clean run
+test:
+	$(NPX) jest
+
+PHONY: clean run deploy test

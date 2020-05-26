@@ -30,10 +30,14 @@ module.exports = {
                     }
                 ]
             },
+            {
+                test: /\.mjml$/,
+                use: ['raw-loader']
+            }
         ],
     },
     resolve: {
-        extensions: ['.ts', '.sql', '.wasm', '.mjs', '.js', '.json'],
+        extensions: ['.ts', '.sql', '.wasm', '.mjs', '.js', '.json', '.mjml'],
     },
     plugins: [
         new GeneratePackageJsonPlugin(basePackageValues, path.resolve(rootDir, "package.json"))
