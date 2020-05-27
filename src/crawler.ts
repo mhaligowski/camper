@@ -5,6 +5,16 @@ import path from "path";
 
 const logger = getLogger();
 
+type ResultLine = {
+    id: string; // value of HTML id attribute
+    name: string;
+}
+export type PageCrawlResult = {
+    url: string; // final URL
+    screenshot: string; // path of the resulting image
+    results: ResultLine[];
+};
+
 class PageCrawler {
     i = 0;
 
@@ -16,7 +26,7 @@ class PageCrawler {
         this.outDir = outDir;
     }
 
-    async crawl(): Promise<number> {
+    async crawl(): Promise<PageCrawlResult> {
         /**
          * PARK SELECTION
          */
@@ -90,12 +100,26 @@ class PageCrawler {
         // Wait for 3 seconds before all the availability spots are shown. Better idea may be to wait for all the elements to have the opacity of 1.
         await this.page.waitFor(3000);
         const availabilitySelector = "div.resource-availability fa-icon.icon-available";
-        const availableIds = await this.page.$$eval(availabilitySelector, avs => avs.map(a => a.parentElement?.id as string));
+        const availableIds: ResultLine[] = await this.page.$$eval(availabilitySelector,
+            avs => avs.map(a => {
+                return {
+                    id: a.parentElement?.id as string,
+                    name: a.previousSibling?.textContent?.trim() as string
+                };
+            }));
         logger.info(`Found ${availableIds.length}: ${availableIds}`);
 
-        await this.page.screenshot({ path: `${this.outDir}/result.png`, fullPage: true });
+        const screenshot = path.join(this.outDir, "result.png");
 
-        return availableIds.length;
+        await this.page.screenshot({ path: screenshot, fullPage: true });
+
+        const result: PageCrawlResult = {
+            url: this.page.url(),
+            screenshot: screenshot,
+            results: availableIds
+        };
+
+        return result;
     }
 
     private async  waitAndClick(selector: string): Promise<void> {

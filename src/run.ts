@@ -11,7 +11,9 @@ async function main() {
     const params = {
         outDir: 'out'
     }
-    await run(params);
+    const result = await run(params);
+    logger.info("Result %j", result);
+    
     await send(apiKey);
 }
 

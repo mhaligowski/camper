@@ -18,7 +18,7 @@ async function crawl() {
     logger.info(`Target directory: ${outDir}`);
     const result = await run({ outDir: outDir });
 
-    if (result.resultsSize == 0) {
+    if (result.results.length == 0) {
         logger.info("No results found.");
         return;
     }
