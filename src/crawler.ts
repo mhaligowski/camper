@@ -1,157 +1,200 @@
-import { Page } from "puppeteer"
-import { getLogger } from "./log";
-
+import { Page } from "puppeteer";
 import path from "path";
+import { format } from "util";
+
+import { getLogger } from "./log";
+import { getCoords } from "./datepick";
 
 const logger = getLogger();
 
 type ResultLine = {
-    id: string; // value of HTML id attribute
-    name: string;
-}
+  id: string; // value of HTML id attribute
+  name: string;
+};
 export type PageCrawlResult = {
-    url: string; // final URL
-    screenshot: string; // path of the resulting image
-    results: ResultLine[];
+  url: string; // final URL
+  screenshot: string; // path of the resulting image
+  results: ResultLine[];
 };
 
 class PageCrawler {
-    i = 0;
+  i = 0;
 
-    page: Page;
-    outDir: string;
+  page: Page;
+  outDir: string;
 
-    constructor(page: Page, outDir = "out") {
-        this.page = page;
-        this.outDir = outDir;
+  constructor(page: Page, outDir = "out") {
+    this.page = page;
+    this.outDir = outDir;
+  }
+
+  async crawl(): Promise<PageCrawlResult> {
+    /**
+     * PARK SELECTION
+     */
+    await this.waitAndClick("mat-select[formcontrolname=park]");
+    await this.waitAndClick("mat-option#mat-option-33");
+
+    /**
+     * ARRIVAL DATE
+     */
+    const arrivalCoords = getCoords(new Date("July 1, 2020"));
+    logger.info("Picking for coords: %j", arrivalCoords);
+
+    await this.waitAndClick("input[formcontrolname=arrivalDate]"); // picker
+    await this.waitAndClick("button#monthDropdownPicker"); // month
+    await this.waitAndClick(
+      format(
+        "mat-year-view tr:nth-child(%d) :nth-child(%d)",
+        arrivalCoords.month.row + 1,
+        arrivalCoords.month.col + 1
+      )
+    );
+    await this.waitAndClick(
+      format(
+        "mat-month-view tbody tr:nth-child(%d) :nth-child(%d)",
+        arrivalCoords.day.row + 1,
+        arrivalCoords.day.col + 1
+      )
+    );
+
+    /**
+     * DEPARTURE DATE
+     */
+    const departureCoords = getCoords(new Date("July 5, 2020"));
+    logger.info("Picking for coords: %j", departureCoords);
+    // JULY 5  3 3 2 1
+    // SEP 9: 4 1 3 4
+    await this.waitAndClick("input[formcontrolname=departureDate]"); // picker
+    await this.waitAndClick("button#monthDropdownPicker"); // month
+    await this.waitAndClick(
+      format(
+        "mat-year-view tr:nth-child(%d) :nth-child(%d)",
+        departureCoords.month.row + 1,
+        departureCoords.month.col + 1
+      )
+    );
+    await this.waitAndClick(
+      format(
+        "mat-month-view tbody tr:nth-child(%d) :nth-child(%d)",
+        departureCoords.day.row + 1,
+        departureCoords.day.col + 1
+      )
+    );
+
+    /**
+     * COVID-19
+     */
+    try {
+      await this.waitAndClick(
+        "mat-checkbox#acknowledgement .mat-checkbox-inner-container"
+      );
+    } catch (e) {
+      logger.info("Couldn't find the COVID-19 agreement, skipping.");
     }
 
-    async crawl(): Promise<PageCrawlResult> {
-        /**
-         * PARK SELECTION
-         */
-        await this.waitAndClick("mat-select[formcontrolname=park]");
-        await this.waitAndClick("mat-option#mat-option-33");
+    /**
+     * EQUIPMENT SELECTION
+     */
+    await this.waitAndClick("mat-select[formcontrolname=equipment]");
+    await this.waitAndClick("mat-option#mat-option-75"); // 1 Tent
 
-        /**
-         * ARRIVAL DATE
-         */
-        // JULY 1: 3 3 1 2
-        // SEP 7: 4 1 3 2
-        await this.waitAndClick("input[formcontrolname=arrivalDate]"); // picker
-        await this.waitAndClick("button#monthDropdownPicker"); // month
-        await this.waitAndClick("mat-year-view tr:nth-child(3) :nth-child(3)"); // pick July
-        await this.waitAndClick("mat-month-view tbody tr:nth-child(1) :nth-child(2)"); // pick 1
+    /**
+     * PARTY SIZE
+     */
+    await this.waitAndEnter("input[formcontrolname=partySize]", "4"); // 4 people
 
-        /**
-         * DEPARTURE DATE
-         */
-        // JULY 5  3 3 2 1
-        // SEP 9: 4 1 3 4
+    /**
+     * CLICK BUTTON
+     */
+    await this.waitAndClick("button#actionSearch");
 
-        // DOES NOT WORK IN HEAD
-        await this.waitAndClick("input[formcontrolname=departureDate]"); // picker
-        await this.waitAndClick("button#monthDropdownPicker"); // month
-        await this.waitAndClick("mat-year-view tr:nth-child(3) :nth-child(3)"); // pick July
-        await this.waitAndClick("mat-month-view tbody tr:nth-child(2) :nth-child(1)"); // pick 5
+    /**
+     * LIST VIEW
+     */
+    await this.waitAndClick(
+      "mat-button-toggle-group.btn-search-results-toggle mat-button-toggle:nth-child(2)"
+    );
 
-        /**
-         * COVID-19
-         */
-        try {
-            await this.waitAndClick("mat-checkbox#acknowledgement .mat-checkbox-inner-container");
-        } catch (e) {
-            logger.info("Couldn't find the COVID-19 agreement, skipping.");
-        }
+    /**
+     * FIND AVAILABLE SPOTS
+     */
+    logger.info(`Waiting for availability to load: "div.availability-panel"`);
+    await this.page.waitFor("app-list-view");
 
-        /**
-         * EQUIPMENT SELECTION
-         */
-        await this.waitAndClick("mat-select[formcontrolname=equipment]");
-        await this.waitAndClick("mat-option#mat-option-75"); // 1 Tent
+    /**
+     * MAKE SURE ONLY THE AVAILABLE ONES ARE VISIBLE.
+     */
+    logger.info("Limit only to the interesting ones.");
+    await this.waitAndClick("mat-checkbox[formcontrolname=compareEnabled]");
 
-        /**
-         * PARTY SIZE
-         */
-        await this.waitAndEnter("input[formcontrolname=partySize]", "4"); // 4 people
+    // Wait for 3 seconds before all the availability spots are shown. Better idea may be to wait for all the elements to have the opacity of 1.
+    await this.page.waitFor(3000);
+    const availabilitySelector =
+      "div.resource-availability fa-icon.icon-available";
+    const availableIds: ResultLine[] = await this.page.$$eval(
+      availabilitySelector,
+      (avs) =>
+        avs.map((a) => {
+          return {
+            id: a.parentElement?.id as string,
+            name: a.previousSibling?.textContent?.trim() as string,
+          };
+        })
+    );
+    logger.info(`Found ${availableIds.length}: ${availableIds}`);
 
-        /**
-         * CLICK BUTTON
-         */
-        await this.waitAndClick("button#actionSearch");
+    const screenshot = path.join(this.outDir, "result.png");
 
-        /**
-         * LIST VIEW
-         */
-        await this.waitAndClick("mat-button-toggle-group.btn-search-results-toggle mat-button-toggle:nth-child(2)");
+    await this.page.screenshot({ path: screenshot, fullPage: true });
 
-        /**
-         * FIND AVAILABLE SPOTS
-         */
-        logger.info(`Waiting for availability to load: "div.availability-panel"`);
-        await this.page.waitFor("app-list-view");
+    const result: PageCrawlResult = {
+      url: this.page.url(),
+      screenshot: screenshot,
+      results: availableIds,
+    };
 
-        /**
-         * MAKE SURE ONLY THE AVAILABLE ONES ARE VISIBLE.
-         */
-        logger.info("Limit only to the interesting ones.");
-        await this.waitAndClick("mat-checkbox[formcontrolname=compareEnabled]");
+    return result;
+  }
 
-        // Wait for 3 seconds before all the availability spots are shown. Better idea may be to wait for all the elements to have the opacity of 1.
-        await this.page.waitFor(3000);
-        const availabilitySelector = "div.resource-availability fa-icon.icon-available";
-        const availableIds: ResultLine[] = await this.page.$$eval(availabilitySelector,
-            avs => avs.map(a => {
-                return {
-                    id: a.parentElement?.id as string,
-                    name: a.previousSibling?.textContent?.trim() as string
-                };
-            }));
-        logger.info(`Found ${availableIds.length}: ${availableIds}`);
+  private async waitAndClick(selector: string): Promise<void> {
+    await this.page.screenshot({
+      path: path.join(
+        this.outDir,
+        `${this.i.toString().padStart(4, "0")}.${selector}.pre.png`
+      ),
+      fullPage: true,
+    });
 
-        const screenshot = path.join(this.outDir, "result.png");
+    try {
+      logger.info(`Waiting for %s`, selector);
+      await this.page.waitFor(selector, { visible: true, timeout: 60000 });
 
-        await this.page.screenshot({ path: screenshot, fullPage: true });
-
-        const result: PageCrawlResult = {
-            url: this.page.url(),
-            screenshot: screenshot,
-            results: availableIds
-        };
-
-        return result;
+      logger.info(`Picking ${selector}`);
+      await this.page.click(selector);
+      await this.page.screenshot({
+        path: path.join(
+          this.outDir,
+          `${this.i.toString().padStart(4, "0")}.${selector}.post.png`
+        ),
+        fullPage: true,
+      });
+    } catch (e) {
+      await this.page.screenshot({
+        path: path.join(this.outDir, "error.png"),
+        fullPage: true,
+      });
+      logger.error(`Error reading selector ${selector}: `, e);
+      throw e;
+    } finally {
+      this.i++;
     }
+  }
 
-    private async  waitAndClick(selector: string): Promise<void> {
-        await this.page.screenshot({
-            path: path.join(this.outDir, `${this.i.toString().padStart(4, '0')}.${selector}.pre.png`),
-            fullPage: true
-        });
+  private async waitAndEnter(selector: string, value: string): Promise<void> {
+    await this.waitAndClick(selector);
+    await this.page.keyboard.type(value);
+  }
+}
 
-        try {
-            logger.info(`Waiting for %s`, selector);
-            await this.page.waitFor(selector, { visible: true, timeout: 60000 });
-
-            logger.info(`Picking ${selector}`);
-            await this.page.click(selector);
-            await this.page.screenshot({
-                path: path.join(this.outDir, `${this.i.toString().padStart(4, '0')}.${selector}.post.png`),
-                fullPage: true
-            });
-        } catch (e) {
-            await this.page.screenshot({ path: path.join(this.outDir, 'error.png'), fullPage: true });
-            logger.error(`Error reading selector ${selector}: `, e);
-            throw e;
-        } finally {
-            this.i++;
-        }
-    }
-
-    private async waitAndEnter(selector: string, value: string): Promise<void> {
-        await this.waitAndClick(selector);
-        await this.page.keyboard.type(value);
-    }
-
-};
-
-export { PageCrawler as Crawler }
+export { PageCrawler as Crawler };
