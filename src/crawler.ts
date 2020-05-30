@@ -29,20 +29,26 @@ class PageCrawler {
   }
 
   async crawl(): Promise<PageCrawlResult> {
+    const jobSpec = {
+      arrivalDate: new Date("July 1, 2020"),
+      departureDate: new Date("Juli 5, 2020"),
+      parkName: "Lake Chelan State Park",
+    };
+
     /**
      * PARK SELECTION
      */
     await this.waitAndClick("mat-select[formcontrolname=park]");
-    await this.waitAndClick("mat-option#mat-option-33");
+    await this.waitAndClickWithText("mat-option", jobSpec.parkName);
 
     /**
      * ARRIVAL DATE
      */
-    const arrivalCoords = getCoords(new Date("July 1, 2020"));
+    const arrivalCoords = getCoords(jobSpec.arrivalDate);
     logger.info("Picking for coords: %j", arrivalCoords);
 
-    await this.waitAndClick("input[formcontrolname=arrivalDate]"); // picker
-    await this.waitAndClick("button#monthDropdownPicker"); // month
+    await this.waitAndClick("input[formcontrolname=arrivalDate]");
+    await this.waitAndClick("button#monthDropdownPicker");
     await this.waitAndClick(
       format(
         "mat-year-view tr:nth-child(%d) :nth-child(%d)",
@@ -61,12 +67,11 @@ class PageCrawler {
     /**
      * DEPARTURE DATE
      */
-    const departureCoords = getCoords(new Date("July 5, 2020"));
+    const departureCoords = getCoords(new Date(jobSpec.departureDate));
     logger.info("Picking for coords: %j", departureCoords);
-    // JULY 5  3 3 2 1
-    // SEP 9: 4 1 3 4
-    await this.waitAndClick("input[formcontrolname=departureDate]"); // picker
-    await this.waitAndClick("button#monthDropdownPicker"); // month
+
+    await this.waitAndClick("input[formcontrolname=departureDate]");
+    await this.waitAndClick("button#monthDropdownPicker");
     await this.waitAndClick(
       format(
         "mat-year-view tr:nth-child(%d) :nth-child(%d)",
@@ -155,6 +160,50 @@ class PageCrawler {
     };
 
     return result;
+  }
+
+  private async waitAndClickWithText(
+    selector: string,
+    text: string
+  ): Promise<void> {
+    await this.page.screenshot({
+      path: path.join(
+        this.outDir,
+        `${this.i.toString().padStart(4, "0")}.${selector}.pre.png`
+      ),
+      fullPage: true,
+    });
+
+    try {
+      logger.info("Waiting for %s with text %s", selector, text);
+      const element = await this.page.waitForFunction(
+        () =>
+          Array.from(document.querySelectorAll(selector)).filter(
+            (el) => el.textContent?.trim() == text
+          ),
+        { timeout: 60000 }
+      );
+
+      logger.info(`Clicking ${selector} with text`);
+
+      await element.asElement()?.click();
+      await this.page.screenshot({
+        path: path.join(
+          this.outDir,
+          `${this.i.toString().padStart(4, "0")}.${selector}.post.png`
+        ),
+        fullPage: true,
+      });
+    } catch (e) {
+      await this.page.screenshot({
+        path: path.join(this.outDir, "error.png"),
+        fullPage: true,
+      });
+      logger.error(`Error reading selector ${selector}: `, e);
+      throw e;
+    } finally {
+      this.i++;
+    }
   }
 
   private async waitAndClick(selector: string): Promise<void> {
