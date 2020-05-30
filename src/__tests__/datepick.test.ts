@@ -15,18 +15,22 @@ it("should be able to run", () => {
 const date = (the_date: string) => new Date(the_date);
 
 it("Months should be fine", () => {
-  expect(getCoords(date("01 Jan 2022")).month).toEqual({ row: 0, col: 0 });
-  expect(getCoords(date("01 Feb 2022")).month).toEqual({ row: 0, col: 1 });
-  expect(getCoords(date("01 Mar 2022")).month).toEqual({ row: 0, col: 2 });
-  expect(getCoords(date("01 Apr 2022")).month).toEqual({ row: 0, col: 3 });
-  expect(getCoords(date("01 May 2022")).month).toEqual({ row: 1, col: 0 });
-  expect(getCoords(date("01 Jun 2022")).month).toEqual({ row: 1, col: 1 });
-  expect(getCoords(date("01 Jul 2022")).month).toEqual({ row: 1, col: 2 });
-  expect(getCoords(date("01 Aug 2022")).month).toEqual({ row: 1, col: 3 });
-  expect(getCoords(date("01 Sep 2022")).month).toEqual({ row: 2, col: 0 });
-  expect(getCoords(date("01 Oct 2022")).month).toEqual({ row: 2, col: 1 });
-  expect(getCoords(date("01 Nov 2022")).month).toEqual({ row: 2, col: 2 });
-  expect(getCoords(date("01 Dec 2022")).month).toEqual({ row: 2, col: 3 });
+  expect(getCoords(date("01 Jan 2022")).month).toEqual({ row: 1, col: 0 });
+  expect(getCoords(date("01 Feb 2022")).month).toEqual({ row: 1, col: 1 });
+  expect(getCoords(date("01 Mar 2022")).month).toEqual({ row: 1, col: 2 });
+  expect(getCoords(date("01 Apr 2022")).month).toEqual({ row: 1, col: 3 });
+  
+  expect(getCoords(date("01 May 2022")).month).toEqual({ row: 2, col: 0 });
+  expect(getCoords(date("01 Jun 2022")).month).toEqual({ row: 2, col: 1 });
+  expect(getCoords(date("01 Jul 2022")).month).toEqual({ row: 2, col: 2 });
+  expect(getCoords(date("01 Aug 2022")).month).toEqual({ row: 2, col: 3 });
+
+  expect(getCoords(date("01 Sep 2022")).month).toEqual({ row: 3, col: 0 });
+  expect(getCoords(date("01 Oct 2022")).month).toEqual({ row: 3, col: 1 });
+  expect(getCoords(date("01 Nov 2022")).month).toEqual({ row: 3, col: 2 });
+  expect(getCoords(date("01 Dec 2022")).month).toEqual({ row: 3, col: 3 });
+
+  expect(getCoords(date("July 1, 2020")).month).toEqual({ row: 2, col: 2 });
 });
 
 /*

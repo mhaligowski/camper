@@ -19,7 +19,7 @@ const MONTH_COLS = 4;
 function getMonthCoords(date: Date): Coords {
   const month: number = date.getMonth(); // 0-based
   return {
-    row: Math.floor(month / MONTH_COLS),
+    row: Math.floor(month / MONTH_COLS) + 1,  // first row is actually the year, so need to shift
     col: Math.floor(month % MONTH_COLS),
   };
 }
