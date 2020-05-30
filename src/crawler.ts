@@ -177,11 +177,12 @@ class PageCrawler {
     try {
       logger.info("Waiting for %s with text %s", selector, text);
       const element = await this.page.waitForFunction(
-        () =>
-          Array.from(document.querySelectorAll(selector)).filter(
+        (sel) =>
+          Array.from(document.querySelectorAll(sel)).filter(
             (el) => el.textContent?.trim() == text
           ),
-        { timeout: 60000 }
+        { timeout: 60000 },
+        selector
       );
 
       logger.info(`Clicking ${selector} with text`);
