@@ -7,6 +7,13 @@ import { getCoords } from "./datepick";
 
 const logger = getLogger();
 
+export type PageCrawlRequest = {
+  arrivalDate: Date;
+  departureDate: Date;
+  parkName: string;
+  equipment: string;
+};
+
 type ResultLine = {
   id: string; // value of HTML id attribute
   name: string;
@@ -15,6 +22,13 @@ export type PageCrawlResult = {
   url: string; // final URL
   screenshot: string; // path of the resulting image
   results: ResultLine[];
+};
+
+const defaultJobSpec: PageCrawlRequest = {
+  arrivalDate: new Date("July 1, 2020"),
+  departureDate: new Date("July 5, 2020"),
+  parkName: "Lake Chelan State Park",
+  equipment: "1 Tent",
 };
 
 class PageCrawler {
@@ -28,14 +42,7 @@ class PageCrawler {
     this.outDir = outDir;
   }
 
-  async crawl(): Promise<PageCrawlResult> {
-    const jobSpec = {
-      arrivalDate: new Date("July 1, 2020"),
-      departureDate: new Date("Juli 5, 2020"),
-      parkName: "Lake Chelan State Park",
-      equipment: "1 Tent",
-    };
-
+  async crawl(jobSpec: PageCrawlRequest = defaultJobSpec): Promise<PageCrawlResult> {
     /**
      * PARK SELECTION
      */
