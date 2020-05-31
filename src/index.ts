@@ -6,12 +6,14 @@ import { Crawler, PageCrawlResult } from "./crawler";
 const logger = getLogger();
 
 type RunParams = {
+    headless?: boolean;
     outDir: string
 };
 
 async function run(params?: RunParams): Promise<PageCrawlResult> {
+    logger.info("Starting new run with params %j.", params);
     const browser = await puppeteer.launch({
-        headless: true,
+        headless: !!(params?.headless),
         defaultViewport: { width: 1200, height: 800 },
         args: ["--no-sandbox"],
     });
@@ -19,7 +21,7 @@ async function run(params?: RunParams): Promise<PageCrawlResult> {
     logger.info(`Browser version: ${version}`);
 
     const page = await browser.newPage();
-    logger.info(`Opened new page `)
+    logger.info(`Opened new page`);
 
     try {
         logger.info("Going to the website...");
@@ -34,7 +36,7 @@ async function run(params?: RunParams): Promise<PageCrawlResult> {
         const pageCrawler = new Crawler(page, params?.outDir);
         return await pageCrawler.crawl();
     } catch (e) {
-        logger.error(`Error caught`);
+        logger.error("Error caught.");
         logger.error(e);
         throw e;
     } finally {

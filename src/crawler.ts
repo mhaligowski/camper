@@ -175,21 +175,22 @@ class PageCrawler {
     });
 
     try {
-      logger.info("Waiting for %s with text %s", selector, text);
+      logger.info('Waiting for %s with text "%s"', selector, text);
 
-      const element = await this.page.waitForFunction(
-        (sel, txt) =>
-          Array.from(document.querySelectorAll(sel)).filter(
-            (el) => el.textContent?.trim() == txt
-          ),
+      const elem = await this.page.waitForFunction(
+        (sel, txt) => {
+          return Array.from(document.querySelectorAll(sel)).filter(
+            (el) => el.textContent.trim() == txt
+          )[0];
+        },
         { timeout: 60000 },
         selector,
         text
       );
 
-      logger.info(`Clicking ${selector} with text`);
-
-      await element.asElement()?.click();
+      logger.info("Clicking %s with text %s", selector, text);
+      await elem.asElement()?.click();
+      
       await this.page.screenshot({
         path: path.join(
           this.outDir,

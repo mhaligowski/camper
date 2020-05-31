@@ -16,7 +16,7 @@ async function crawl() {
 
     const outDir = await fs.mkdtemp(`${tmpdir()}${sep}crawl`);
     logger.info(`Target directory: ${outDir}`);
-    const result = await run({ outDir: outDir });
+    const result = await run({ outDir: outDir, headless: true });
 
     if (result.results.length == 0) {
         logger.info("No results found.");
