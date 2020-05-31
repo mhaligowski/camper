@@ -1,7 +1,7 @@
 NPX=npx
 
 run: out
-	$(NPX) node -r ts-node/register -r dotenv/config ./src/run.ts
+	$(NPX) node -r ts-node/register -r dotenv/config ./src/cli.ts
 
 out:
 	mkdir $@
