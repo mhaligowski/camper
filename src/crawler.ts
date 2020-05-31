@@ -33,6 +33,7 @@ class PageCrawler {
       arrivalDate: new Date("July 1, 2020"),
       departureDate: new Date("Juli 5, 2020"),
       parkName: "Lake Chelan State Park",
+      equipment: "1 Tent",
     };
 
     /**
@@ -102,7 +103,7 @@ class PageCrawler {
      * EQUIPMENT SELECTION
      */
     await this.waitAndClick("mat-select[formcontrolname=equipment]");
-    await this.waitAndClick("mat-option#mat-option-75"); // 1 Tent
+    await this.waitAndClickWithText("mat-option", jobSpec.equipment);
 
     /**
      * PARTY SIZE
@@ -153,13 +154,11 @@ class PageCrawler {
 
     await this.page.screenshot({ path: screenshot, fullPage: true });
 
-    const result: PageCrawlResult = {
+    return {
       url: this.page.url(),
       screenshot: screenshot,
       results: availableIds,
     };
-
-    return result;
   }
 
   private async waitAndClickWithText(
@@ -190,7 +189,7 @@ class PageCrawler {
 
       logger.info("Clicking %s with text %s", selector, text);
       await elem.asElement()?.click();
-      
+
       await this.page.screenshot({
         path: path.join(
           this.outDir,
