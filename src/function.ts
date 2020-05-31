@@ -2,7 +2,7 @@ import { promises as fs } from "fs";
 import { sep } from "path";
 import { tmpdir } from "os";
 
-import { run } from "./index";
+import { run } from "./run";
 import { getLogger } from "./log";
 import { send } from "./sender";
 

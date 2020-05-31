@@ -1,5 +1,5 @@
 import { getLogger } from "./log";
-import { run } from "./index";
+import { run } from "./run";
 
 require("dotenv").config();
 const logger = getLogger();
