@@ -25,18 +25,6 @@ async function run(params: RunParams): Promise<PageCrawlResult> {
   logger.info(`Opened new page`);
 
   try {
-    logger.info("Going to the website...");
-    await page.goto("https://washington.goingtocamp.com", {
-      timeout: 0,
-      waitUntil: "load",
-    });
-  } catch (e) {
-    logger.error("Cannot go to the page");
-    logger.error(e);
-    throw e;
-  }
-
-  try {
     const pageCrawler = new Crawler(page, params.outDir);
     return await pageCrawler.crawl(params.jobs[0]);
   } catch (e) {

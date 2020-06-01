@@ -37,6 +37,21 @@ class PageCrawler {
 
   async crawl(jobSpec: PageCrawlRequest): Promise<PageCrawlResult> {
     /**
+     * GO TO WASHINGTON CAMPING RESERVATION.
+     */
+    try {
+      logger.info("Going to the website...");
+      await this.page.goto("https://washington.goingtocamp.com", {
+        timeout: 0,
+        waitUntil: "load",
+      });
+    } catch (e) {
+      logger.error("Cannot go to the page");
+      logger.error(e);
+      throw e;
+    }
+
+    /**
      * PARK SELECTION
      */
     await this.waitAndClick("mat-select[formcontrolname=park]");
