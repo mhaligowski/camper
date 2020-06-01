@@ -5,6 +5,7 @@ import { tmpdir } from "os";
 import { run, RunParams } from "./run";
 import { getLogger } from "./log";
 import { send } from "./sender";
+import { PageCrawlRequest } from "./crawler";
 
 require("dotenv").config();
 const logger = getLogger();
@@ -19,7 +20,19 @@ async function crawl() {
   const outDir = await fs.mkdtemp(`${tmpdir()}${sep}crawl`);
   logger.info(`Target directory: ${outDir}`);
 
-  const runParams: RunParams = { outDir: outDir, headless: true, jobs: [] };
+  const jobSpec: PageCrawlRequest = {
+    arrivalDate: new Date("July 1, 2020"),
+    departureDate: new Date("July 5, 2020"),
+    parkName: "Lake Chelan State Park",
+    equipment: "1 Tent",
+  };
+
+  const runParams: RunParams = {
+    outDir: outDir,
+    headless: true,
+    jobs: [jobSpec],
+  };
+  
   const result = await run(runParams);
 
   if (result.results.length == 0) {

@@ -24,13 +24,6 @@ export type PageCrawlResult = {
   results: ResultLine[];
 };
 
-const defaultJobSpec: PageCrawlRequest = {
-  arrivalDate: new Date("July 1, 2020"),
-  departureDate: new Date("July 5, 2020"),
-  parkName: "Lake Chelan State Park",
-  equipment: "1 Tent",
-};
-
 class PageCrawler {
   i = 0;
 
@@ -42,7 +35,7 @@ class PageCrawler {
     this.outDir = outDir;
   }
 
-  async crawl(jobSpec: PageCrawlRequest = defaultJobSpec): Promise<PageCrawlResult> {
+  async crawl(jobSpec: PageCrawlRequest): Promise<PageCrawlResult> {
     /**
      * PARK SELECTION
      */
