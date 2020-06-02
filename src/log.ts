@@ -10,7 +10,7 @@ function createLocalLogger(): Logger {
       format.splat(),
       format.colorize(),
       format.prettyPrint(),
-      format.simple(),
+      format.simple()
     ),
   });
 }

@@ -50,8 +50,7 @@ class PageCrawler {
       logger.error(e);
       throw e;
     }
-  
-  
+
     /**
      * PARK SELECTION
      */

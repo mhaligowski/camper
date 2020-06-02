@@ -42,7 +42,8 @@ async function crawl() {
 
   const result = await run(runParams);
 
-  if (result[0].results.length == 0) { // TODO: Unignore all the results.
+  if (result[0].results.length == 0) {
+    // TODO: Unignore all the results.
     // logger.info("No results found in the first search");
     return;
   }
