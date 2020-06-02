@@ -9,6 +9,7 @@ function createLocalLogger(): Logger {
     format: format.combine(
       format.splat(),
       format.colorize(),
+      format.prettyPrint(),
       format.simple(),
     ),
   });

@@ -2,6 +2,7 @@ import puppeteer from "puppeteer";
 
 import { getLogger } from "./log";
 import { Crawler, PageCrawlResult, PageCrawlRequest } from "./crawler";
+import async from "async";
 
 const logger = getLogger();
 
@@ -11,7 +12,7 @@ export type RunParams = {
   jobs: PageCrawlRequest[];
 };
 
-async function run(params: RunParams): Promise<PageCrawlResult> {
+async function run(params: RunParams): Promise<PageCrawlResult[]> {
   logger.info("Starting new run with params %j.", params);
   const browser = await puppeteer.launch({
     headless: !!params.headless,
@@ -26,7 +27,12 @@ async function run(params: RunParams): Promise<PageCrawlResult> {
 
   try {
     const pageCrawler = new Crawler(page, params.outDir);
-    return await pageCrawler.crawl(params.jobs[0]);
+
+    const result: PageCrawlResult[] = await async.mapSeries(
+      params.jobs,
+      async (jobParams) => pageCrawler.crawl(jobParams)
+    );
+    return result;
   } catch (e) {
     logger.error("Error caught.");
     logger.error(e);

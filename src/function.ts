@@ -27,16 +27,23 @@ async function crawl() {
     equipment: "1 Tent",
   };
 
+  const jobSpec2: PageCrawlRequest = {
+    arrivalDate: new Date("Sep 10, 2020"),
+    departureDate: new Date("Sep 12, 2020"),
+    parkName: "Lake Chelan State Park",
+    equipment: "1 Tent",
+  };
+
   const runParams: RunParams = {
     outDir: outDir,
     headless: true,
-    jobs: [jobSpec],
+    jobs: [jobSpec, jobSpec2],
   };
-  
+
   const result = await run(runParams);
 
-  if (result.results.length == 0) {
-    logger.info("No results found.");
+  if (result[0].results.length == 0) { // TODO: Unignore all the results.
+    // logger.info("No results found in the first search");
     return;
   }
 

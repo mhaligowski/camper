@@ -50,7 +50,8 @@ class PageCrawler {
       logger.error(e);
       throw e;
     }
-
+  
+  
     /**
      * PARK SELECTION
      */
@@ -163,7 +164,7 @@ class PageCrawler {
           };
         })
     );
-    logger.info(`Found ${availableIds.length}: ${availableIds}`);
+    logger.info(`Found ${availableIds.length}`);
 
     const screenshot = path.join(this.outDir, "result.png");
 
