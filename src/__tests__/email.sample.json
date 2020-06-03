@@ -1,0 +1,26 @@
+[
+  {
+    "url": "https://washington.goingtocamp.com/create-booking/results?resourceLocationId=-2147483599&mapId=-2147483377&searchTabGroupId=0&bookingCategoryId=0&startDate=2020-09-01T00:00:00.000Z&endDate=2020-09-05T00:00:00.000Z&nights=4&isReserving=true&equipmentId=-32768&subEquipmentId=-32768&partySize=4&searchTime=2020-06-02T00:00:00.000Z",
+    "screenshot": "out/result.png",
+    "results": [
+      { "id": "availability-0", "name": "Marina and Beach Loop" },
+      { "id": "availability-1", "name": "West Loop" }
+    ],
+    "arrivalDate": "2020-09-01T07:00:00.000Z",
+    "departureDate": "2020-09-05T07:00:00.000Z",
+    "parkName": "Lake Chelan State Park",
+    "equipment": "1 Tent"
+  },
+  {
+    "url": "https://washington.goingtocamp.com/create-booking/results?resourceLocationId=-2147483599&mapId=-2147483377&searchTabGroupId=0&bookingCategoryId=0&startDate=2020-09-10T00:00:00.000Z&endDate=2020-09-12T00:00:00.000Z&nights=2&isReserving=true&equipmentId=-32768&subEquipmentId=-32768&partySize=4&searchTime=2020-06-02T00:00:00.000Z",
+    "screenshot": "out/result.png",
+    "results": [
+      { "id": "availability-0", "name": "Trailer Loop" },
+      { "id": "availability-1", "name": "West Loop" }
+    ],
+    "arrivalDate": "2020-09-10T07:00:00.000Z",
+    "departureDate": "2020-09-12T07:00:00.000Z",
+    "parkName": "Lake Chelan State Park",
+    "equipment": "1 Tent"
+  }
+]

@@ -19,19 +19,22 @@
         <mj-image src="http://go.mailjet.com/tplimg/mtrq/b/ox8s/mg1q9.png" alt="header image" padding="0px"></mj-image>
       </mj-column>
     </mj-section>
+
     <mj-section padding-bottom="20px" padding-top="10px">
       <mj-column>
-        <mj-text align="center" padding="10px 25px" font-size="20px" color="#512d0b"><strong>Hey!</strong></mj-text>
-        <mj-text align="center" font-size="18px">Here's something:</mj-text>
-        
-        {{#items}}
-          <mj-text>
-          
-          </mj-text>
-        {{/items}}
+        <mj-text padding="10px 25px" font-size="24px" color="#512d0b"><strong>Hey!</strong></mj-text>
+        <mj-text font-size="18px">Here's something:</mj-text>
+      </mj-column>
+    </mj-section>
+
+    <mj-section>
+      <mj-column>
+        {{#results}}
+          <mj-button font-size="16px" font-family="Helvetica Neue" background-color="#512d0b" href="{{url}}">{{parkName}} <br /> ({{ arrivalDate }}-{{departureDate}}</mj-button>
+        {{/results}}
 
         <mj-text align="center" color="#000000" font-size="14px" font-family="Verdana, sans-serif" padding-top="40px">
-          Best, <br /> The Camper Team
+          Best, <br /> <br /> The Camper Team
         </mj-text>
       </mj-column>
     </mj-section>

@@ -18,11 +18,12 @@ type ResultLine = {
   id: string; // value of HTML id attribute
   name: string;
 };
+
 export type PageCrawlResult = {
   url: string; // final URL
   screenshot: string; // path of the resulting image
   results: ResultLine[];
-};
+} & PageCrawlRequest;
 
 class PageCrawler {
   i = 0;
@@ -153,16 +154,15 @@ class PageCrawler {
     await this.page.waitFor(3000);
     const availabilitySelector =
       "div.resource-availability fa-icon.icon-available";
-    const availableIds: ResultLine[] = await this.page.$$eval(
-      availabilitySelector,
-      (avs) =>
-        avs.map((a) => {
-          return {
-            id: a.parentElement?.id as string,
-            name: a.previousSibling?.textContent?.trim() as string,
-          };
-        })
+    const availableIds = await this.page.$$eval(availabilitySelector, (avs) =>
+      avs.map((a) => {
+        return {
+          id: a.parentElement?.id as string,
+          name: a.parentElement?.previousSibling?.textContent?.trim() as string,
+        };
+      })
     );
+
     logger.info(`Found ${availableIds.length}`);
 
     const screenshot = path.join(this.outDir, "result.png");
@@ -173,6 +173,7 @@ class PageCrawler {
       url: this.page.url(),
       screenshot: screenshot,
       results: availableIds,
+      ...jobSpec,
     };
   }
 

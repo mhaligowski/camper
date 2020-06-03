@@ -23,6 +23,7 @@ async function main() {
   const params = {
     outDir: "out",
     jobs: [jobSpec1, jobSpec2],
+    headless: false
   };
 
   const result = await run(params);

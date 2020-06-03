@@ -2,10 +2,11 @@ import { MailService, MailDataRequired } from '@sendgrid/mail';
 
 import { getLogger } from './log';
 import { buildEmail } from './email';
+import { PageCrawlResult } from './crawler';
 
 const logger = getLogger();
 
-export async function send(apiKey: string): Promise<void> {
+export async function send(apiKey: string, results: PageCrawlResult[]): Promise<void> {
     logger.info("Sending email.");
     const mail = new MailService();
     mail.setApiKey(apiKey);
@@ -17,7 +18,7 @@ export async function send(apiKey: string): Promise<void> {
         content: [
             {
                 type: "text/html",
-                value: buildEmail()
+                value: buildEmail(results)
             }
         ]        
     };

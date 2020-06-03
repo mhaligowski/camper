@@ -40,17 +40,16 @@ async function crawl() {
     jobs: [jobSpec, jobSpec2],
   };
 
-  const result = await run(runParams);
+  const results = await run(runParams);
 
-  if (result[0].results.length == 0) {
-    // TODO: Unignore all the results.
-    // logger.info("No results found in the first search");
+  if (results.length == 0) {
+    logger.info("No results found in the first search");
     return;
   }
 
   try {
     const sendmail_api_key = process.env.SENDGRID_API_KEY as string;
-    await send(sendmail_api_key);
+    await send(sendmail_api_key, results);
   } catch (e) {
     logger.error(e);
     throw e;
