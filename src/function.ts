@@ -28,8 +28,8 @@ async function crawl() {
   };
 
   const jobSpec2: PageCrawlRequest = {
-    arrivalDate: new Date("Sep 10, 2020"),
-    departureDate: new Date("Sep 12, 2020"),
+    arrivalDate: new Date("Sep 4, 2020"),
+    departureDate: new Date("Sep 7, 2020"),
     parkName: "Lake Chelan State Park",
     equipment: "1 Tent",
   };
