@@ -41,15 +41,15 @@ async function crawl() {
   };
 
   const results = await run(runParams);
-
-  if (results.length == 0) {
+  const relevant = results.filter((r) => r.results.length > 0);
+  if (relevant.length == 0) {
     logger.info("No results found in the first search");
     return;
   }
 
   try {
     const sendmail_api_key = process.env.SENDGRID_API_KEY as string;
-    await send(sendmail_api_key, results);
+    await send(sendmail_api_key, relevant);
   } catch (e) {
     logger.error(e);
     throw e;
