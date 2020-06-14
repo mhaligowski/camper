@@ -8,8 +8,8 @@ import { getCoords } from "./datepick";
 const logger = getLogger();
 
 export type PageCrawlRequest = {
-  arrivalDate: Date;
-  departureDate: Date;
+  arrivalDate: Date | number;
+  departureDate: Date | number;
   parkName: string;
   equipment: string;
 };
@@ -61,7 +61,7 @@ class PageCrawler {
     /**
      * ARRIVAL DATE
      */
-    const arrivalCoords = getCoords(jobSpec.arrivalDate);
+    const arrivalCoords = getCoords(new Date(jobSpec.arrivalDate));
     logger.info("Picking for coords: %j", arrivalCoords);
 
     await this.waitAndClick("input[formcontrolname=arrivalDate]");
