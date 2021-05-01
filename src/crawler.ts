@@ -236,7 +236,7 @@ class PageCrawler {
 
     try {
       logger.info(`Waiting for %s`, selector);
-      await this.page.waitFor(selector, { visible: true, timeout: 60000 });
+      await this.page.waitFor(selector, { visible: true, timeout: 900000 });
 
       logger.info(`Picking ${selector}`);
       await this.page.click(selector);
