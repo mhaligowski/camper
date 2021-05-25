@@ -1,6 +1,7 @@
 import { Page } from "puppeteer";
 import path from "path";
 import { format } from "util";
+import { v4 } from "uuid";
 
 import { getLogger } from "./log";
 import { getCoords } from "./datepick";
@@ -20,6 +21,7 @@ type ResultLine = {
 };
 
 export type PageCrawlResult = {
+	id: string;
 	url: string; // final URL
 	screenshot: string; // path of the resulting image
 	results: ResultLine[];
@@ -41,7 +43,7 @@ class PageCrawler {
 		 * GO TO WASHINGTON CAMPING RESERVATION.
 		 */
 		try {
-			logger.info("Going to the website...");
+			logger.debug("Going to the website...");
 			await this.page.goto("https://washington.goingtocamp.com", {
 				timeout: 0,
 				waitUntil: "load",
@@ -62,7 +64,7 @@ class PageCrawler {
 		 * ARRIVAL DATE
 		 */
 		const arrivalCoords = getCoords(new Date(jobSpec.arrivalDate));
-		logger.info("Picking for coords: %j", arrivalCoords);
+		logger.debug("Picking for coords: %j", arrivalCoords);
 
 		await this.waitAndClick("input[formcontrolname=arrivalDate]");
 		await this.waitAndClick("button#monthDropdownPicker");
@@ -85,7 +87,7 @@ class PageCrawler {
 		 * DEPARTURE DATE
 		 */
 		const departureCoords = getCoords(new Date(jobSpec.departureDate));
-		logger.info("Picking for coords: %j", departureCoords);
+		logger.debug("Picking for coords: %j", departureCoords);
 
 		await this.waitAndClick("input[formcontrolname=departureDate]");
 		await this.waitAndClick("button#monthDropdownPicker");
@@ -142,13 +144,13 @@ class PageCrawler {
 		/**
 		 * FIND AVAILABLE SPOTS
 		 */
-		logger.info(`Waiting for availability to load: "app-list-view"`);
+		logger.debug(`Waiting for availability to load: "app-list-view"`);
 		await this.page.waitFor("app-list-view");
 
 		// Wait for 3 seconds before all the availability spots are shown. Better idea may be to wait for all the elements to have the opacity of 1.
 		await this.page.waitFor(3000);
 		const availabilitySelector =
-			"div.resource-availability fa-icon.icon-available";
+			"mat-panel-description fa-icon.icon-available";
 		const availableIds = await this.page.$$eval(availabilitySelector, (avs) =>
 			avs.map((a) => {
 				return {
@@ -165,6 +167,7 @@ class PageCrawler {
 		await this.page.screenshot({ path: screenshot, fullPage: true });
 
 		return {
+			id: v4(),
 			url: this.page.url(),
 			screenshot: screenshot,
 			results: availableIds,
@@ -185,12 +188,12 @@ class PageCrawler {
 		});
 
 		try {
-			logger.info('Waiting for %s with text "%s"', selector, text);
+			logger.debug('Waiting for %s with text "%s"', selector, text);
 
 			const elem = await this.page.waitForFunction(
-				(sel, txt) => {
+				(sel: string, txt: string) => {
 					return Array.from(document.querySelectorAll(sel)).filter(
-						(el) => el.textContent.trim() == txt
+						(el) => el.textContent?.trim() === txt
 					)[0];
 				},
 				{ timeout: 60000 },
@@ -198,7 +201,7 @@ class PageCrawler {
 				text
 			);
 
-			logger.info("Clicking %s with text %s", selector, text);
+			logger.debug("Clicking %s with text %s", selector, text);
 			await elem.asElement()?.click();
 
 			await this.page.screenshot({
@@ -230,10 +233,10 @@ class PageCrawler {
 		});
 
 		try {
-			logger.info(`Waiting for %s`, selector);
+			logger.debug(`Waiting for %s`, selector);
 			await this.page.waitFor(selector, { visible: true, timeout: 900000 });
 
-			logger.info(`Picking ${selector}`);
+			logger.debug(`Picking ${selector}`);
 			await this.page.click(selector);
 			await this.page.screenshot({
 				path: path.join(

@@ -14,6 +14,7 @@ dist: ./config/webpack.config.js
 
 deploy: dist
 	gcloud functions deploy crawl \
+		--project=camper \
 		--source=$^ \
 		--runtime=nodejs10 \
 		--trigger-topic=trigger
