@@ -16,7 +16,7 @@ async function run(params: RunParams): Promise<PageCrawlResult[]> {
   logger.info("Starting new run with params %j.", params);
   const browser = await puppeteer.launch({
     headless: !!params.headless,
-    defaultViewport: { width: 1200, height: 800 },
+    defaultViewport: { width: 1920, height: 1080 },
     args: ["--no-sandbox"],
   });
   const version = await browser.version();
