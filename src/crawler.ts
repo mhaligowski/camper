@@ -21,7 +21,7 @@ type ResultLine = {
 };
 
 export type PageCrawlResult = {
-	id: string;
+	id: string; // UUID
 	url: string; // final URL
 	screenshot: string; // path of the resulting image
 	results: ResultLine[];
@@ -30,10 +30,12 @@ export type PageCrawlResult = {
 class PageCrawler {
 	i = 0;
 
+	id: string;
 	page: Page;
 	outDir: string;
 
-	constructor(page: Page, outDir = "out") {
+	constructor(id: string, page: Page, outDir = "out") {
+		this.id = id;
 		this.page = page;
 		this.outDir = outDir;
 	}
@@ -167,7 +169,7 @@ class PageCrawler {
 		await this.page.screenshot({ path: screenshot, fullPage: true });
 
 		return {
-			id: v4(),
+			id: this.id,
 			url: this.page.url(),
 			screenshot: screenshot,
 			results: availableIds,
