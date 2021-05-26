@@ -11,6 +11,7 @@
     "@sendgrid/mail": "^7.1.1",
     "async": "^3.2.0",
     "dotenv": "^8.2.0",
+    "firebase-admin": "^9.8.0",
     "mjml": "^4.6.3",
     "mustache": "^4.0.1",
     "puppeteer": "9.1.1",

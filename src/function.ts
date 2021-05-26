@@ -1,4 +1,4 @@
-import { promises as fs } from "fs";
+import { promises as fs, promises } from "fs";
 import { sep } from "path";
 import { tmpdir } from "os";
 import { Context } from "@google-cloud/functions-framework";
@@ -7,6 +7,9 @@ import { run, RunParams } from "./run";
 import { getLogger } from "./log";
 import { send } from "./sender";
 import { PageCrawlRequest, PageCrawlResult } from "./crawler";
+
+import admin from "firebase-admin";
+admin.initializeApp();
 
 require("dotenv").config();
 const logger = getLogger();
@@ -56,6 +59,22 @@ async function crawl(data: {}, context: Context) {
 
 	const results = await run(runParams);
 	logger.info("Results: %j", results);
+
+	const db = admin.firestore();
+	const collection = db.collection("runs");
+	const batch = db.batch();
+
+	results.forEach((r) => {
+		const docRef = collection.doc(r.id);
+		batch.set(docRef, r);
+	});
+
+	try {
+		await batch.commit();
+		logger.info("Commited a batch write to Firestore");
+	} catch (e) {
+		logger.error(e);
+	}
 
 	const relevant = results.filter((r) => r.results.length > 0);
 	if (relevant.length == 0) {

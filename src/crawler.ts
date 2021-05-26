@@ -21,7 +21,7 @@ type ResultLine = {
 };
 
 export type PageCrawlResult = {
-	id: string; // UUID
+	id: string; // run UUID
 	url: string; // final URL
 	screenshot: string; // path of the resulting image
 	results: ResultLine[];
