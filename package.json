@@ -28,6 +28,7 @@
     "@types/mustache": "^4.0.1",
     "@types/node": "^14.0.1",
     "@types/uuid": "^8.3.0",
+    "@types/yargs": "^17.0.0",
     "babel-jest": "^26.0.1",
     "eslint": "^7.1.0",
     "file-loader": "^6.0.0",
@@ -42,6 +43,7 @@
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.11",
     "webpack-mjml-loader": "^1.1.0",
-    "webpack-node-externals": "^1.7.2"
+    "webpack-node-externals": "^1.7.2",
+    "yargs": "^17.0.1"
   }
 }

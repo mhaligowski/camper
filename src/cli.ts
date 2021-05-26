@@ -7,24 +7,34 @@ import { PageCrawlRequest } from "./crawler";
 require("dotenv").config();
 const logger = getLogger();
 
-async function main() {
-	const jobSpec1: PageCrawlRequest = {
-		arrivalDate: new Date("September 28, 2021"),
-		departureDate: new Date("September 30, 2021"),
-		parkName: "Lake Chelan State Park",
-		equipment: "1 Tent",
-	};
+import yargs from "yargs";
+import { hideBin } from "yargs/helpers";
 
-	await fs.mkdir("out");
+const jobSpec1: PageCrawlRequest = {
+	arrivalDate: new Date("September 28, 2021"),
+	departureDate: new Date("September 30, 2021"),
+	parkName: "Lake Chelan State Park",
+	equipment: "1 Tent",
+};
 
-	const params = {
-		outDir: "out",
-		jobs: [jobSpec1],
-		headless: false,
-	};
+yargs(hideBin(process.argv))
+	.command(
+		"run",
+		"runs the local crawl with current pre-configured params.",
+		() => {},
+		async () => {
+			await fs.mkdir("out");
 
-	const result = await run(params);
-	logger.info("Result %j", result);
-}
+			const params = {
+				outDir: "out",
+				jobs: [jobSpec1],
+				headless: false,
+			};
 
-main().catch(logger.error);
+			const result = await run(params);
+			logger.info("Result %j", result);
+		}
+	)
+	.demandCommand()
+	.parseAsync()
+	.catch(logger.error);
