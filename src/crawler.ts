@@ -1,7 +1,6 @@
 import { Page } from "puppeteer";
 import path from "path";
 import { format } from "util";
-import { v4 } from "uuid";
 
 import { getLogger } from "./log";
 import { getCoords } from "./datepick";
@@ -9,8 +8,8 @@ import { getCoords } from "./datepick";
 const logger = getLogger();
 
 export type PageCrawlRequest = {
-	arrivalDate: Date | number;
-	departureDate: Date | number;
+	arrivalDate: Date;
+	departureDate: Date;
 	parkName: string;
 	equipment: string;
 };

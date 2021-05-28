@@ -1,4 +1,4 @@
-import { promises as fs, promises } from "fs";
+import { promises as fs } from "fs";
 import { sep } from "path";
 import { tmpdir } from "os";
 import { Context } from "@google-cloud/functions-framework";
@@ -6,7 +6,8 @@ import { Context } from "@google-cloud/functions-framework";
 import { run, RunParams } from "./run";
 import { getLogger } from "./log";
 import { send } from "./sender";
-import { PageCrawlRequest, PageCrawlResult } from "./crawler";
+import { PageCrawlRequest } from "./crawler";
+import { parse } from "./function/inputparser";
 
 import admin from "firebase-admin";
 admin.initializeApp();
@@ -27,7 +28,7 @@ async function crawl(data: {}, context: Context) {
 
 	let jobSpecs: PageCrawlRequest[];
 	try {
-		jobSpecs = JSON.parse(jobSpecsRaw);
+		jobSpecs = parse(jobSpecsRaw);
 	} catch (e) {
 		logger.warning("Problem parsing the jobs, using fallback");
 
