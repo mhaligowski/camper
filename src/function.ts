@@ -66,6 +66,7 @@ async function crawl(data: {}, context: Context) {
 	const batch = db.batch();
 
 	results.forEach((r) => {
+		logger.info("Adding %s to collection", r.id);
 		const docRef = collection.doc(r.id);
 		batch.set(docRef, r);
 	});
