@@ -28,25 +28,47 @@ async function run(params: RunParams): Promise<PageCrawlResult[]> {
 	const page = await browser.newPage();
 	logger.info(`Opened new page`);
 
+	const runId = v4();
+	const runOutDir = path.join(params.outDir, runId);
+
+	logger.debug("Creating run directory %s.", runOutDir);
 	try {
-		const id = v4();
-		const outDir = path.join(params.outDir, id);
-		await fs.mkdir(outDir);
-
-		const pageCrawler = new Crawler(id, page, outDir);
-
-		const result: PageCrawlResult[] = await async.mapSeries(
-			params.jobs,
-			async (jobParams) => pageCrawler.crawl(jobParams)
-		);
-		return result;
+		await fs.mkdir(runOutDir);
+		logger.debug("Directory %s created.", runOutDir);
 	} catch (e) {
-		logger.error("Error caught.");
-		logger.error(e);
+		logger.warn(e);
+		if (e.code === "EEXIST") {
+			logger.warn("Directory %s already exists. Skipping.", runOutDir);
+		} else {
+			logger.error(e);
+			if (browser.isConnected()) {
+				logger.info(
+					"Creating output dir %s failed. Closing the browser.",
+					runOutDir
+				);
+				await browser.close();
+			}
+			throw e;
+		}
+	}
+
+	const pageCrawler = new Crawler(runId, page);
+
+	try {
+		return await async.mapSeries(params.jobs, async (jobParams) => {
+			const crawlId = v4();
+			const jobDir = path.join(runOutDir, crawlId);
+			await fs.mkdir(jobDir);
+
+			const result = await pageCrawler.crawl(jobParams, jobDir, crawlId);
+			return result;
+		});
+	} catch (e) {
+		logger.error("Error caught.", e);
 		throw e;
 	} finally {
 		if (browser.isConnected()) {
-			logger.info("Closing the browser.");
+			logger.info("Everything is finished. Closing the browser.");
 			await browser.close();
 		}
 	}

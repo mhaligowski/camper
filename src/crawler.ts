@@ -20,7 +20,8 @@ type ResultLine = {
 };
 
 export type PageCrawlResult = {
-	id: string; // run UUID
+	runId: string; // run UUID
+	crawlId: string; // id of a single crawl
 	url: string; // final URL
 	screenshot: string; // path of the resulting image
 	results: ResultLine[];
@@ -29,17 +30,19 @@ export type PageCrawlResult = {
 class PageCrawler {
 	i = 0;
 
-	id: string;
-	page: Page;
-	outDir: string;
+	runId: string;
+	page: Page; // Google Chrome reference
 
-	constructor(id: string, page: Page, outDir = "out") {
-		this.id = id;
+	constructor(runId: string, page: Page) {
+		this.runId = runId;
 		this.page = page;
-		this.outDir = outDir;
 	}
 
-	async crawl(jobSpec: PageCrawlRequest): Promise<PageCrawlResult> {
+	async crawl(
+		jobSpec: PageCrawlRequest,
+		outDir: string,
+		crawlId: string
+	): Promise<PageCrawlResult> {
 		/**
 		 * GO TO WASHINGTON CAMPING RESERVATION.
 		 */
@@ -50,16 +53,15 @@ class PageCrawler {
 				waitUntil: "load",
 			});
 		} catch (e) {
-			logger.error("Cannot go to the page");
-			logger.error(e);
+			logger.error("Cannot go to the page", e);
 			throw e;
 		}
 
 		/**
 		 * PARK SELECTION
 		 */
-		await this.waitAndClick("mat-select[formcontrolname=park]");
-		await this.waitAndClickWithText("mat-option", jobSpec.parkName);
+		await this.waitAndClick("mat-select[formcontrolname=park]", outDir);
+		await this.waitAndClickWithText("mat-option", jobSpec.parkName, outDir);
 
 		/**
 		 * ARRIVAL DATE
@@ -67,21 +69,23 @@ class PageCrawler {
 		const arrivalCoords = getCoords(new Date(jobSpec.arrivalDate));
 		logger.debug("Picking for coords: %j", arrivalCoords);
 
-		await this.waitAndClick("input[formcontrolname=arrivalDate]");
-		await this.waitAndClick("button#monthDropdownPicker");
+		await this.waitAndClick("input[formcontrolname=arrivalDate]", outDir);
+		await this.waitAndClick("button#monthDropdownPicker", outDir);
 		await this.waitAndClick(
 			format(
 				"mat-year-view tr:nth-child(%d) :nth-child(%d)",
 				arrivalCoords.month.row + 1,
 				arrivalCoords.month.col + 1
-			)
+			),
+			outDir
 		);
 		await this.waitAndClick(
 			format(
 				"mat-month-view tbody tr:nth-child(%d) :nth-child(%d)",
 				arrivalCoords.day.row + 1,
 				arrivalCoords.day.col + 1
-			)
+			),
+			outDir
 		);
 
 		/**
@@ -90,21 +94,23 @@ class PageCrawler {
 		const departureCoords = getCoords(new Date(jobSpec.departureDate));
 		logger.debug("Picking for coords: %j", departureCoords);
 
-		await this.waitAndClick("input[formcontrolname=departureDate]");
-		await this.waitAndClick("button#monthDropdownPicker");
+		await this.waitAndClick("input[formcontrolname=departureDate]", outDir);
+		await this.waitAndClick("button#monthDropdownPicker", outDir);
 		await this.waitAndClick(
 			format(
 				"mat-year-view tr:nth-child(%d) :nth-child(%d)",
 				departureCoords.month.row + 1,
 				departureCoords.month.col + 1
-			)
+			),
+			outDir
 		);
 		await this.waitAndClick(
 			format(
 				"mat-month-view tbody tr:nth-child(%d) :nth-child(%d)",
 				departureCoords.day.row + 1,
 				departureCoords.day.col + 1
-			)
+			),
+			outDir
 		);
 
 		/**
@@ -112,7 +118,8 @@ class PageCrawler {
 		 */
 		try {
 			await this.waitAndClick(
-				"mat-checkbox#acknowledgement .mat-checkbox-inner-container"
+				"mat-checkbox#acknowledgement .mat-checkbox-inner-container",
+				outDir
 			);
 		} catch (e) {
 			logger.info("Couldn't find the COVID-19 agreement, skipping.");
@@ -121,37 +128,33 @@ class PageCrawler {
 		/**
 		 * EQUIPMENT SELECTION
 		 */
-		await this.waitAndClick("mat-select[formcontrolname=equipment]");
-		await this.waitAndClickWithText("mat-option", jobSpec.equipment);
+		await this.waitAndClick("mat-select[formcontrolname=equipment]", outDir);
+		await this.waitAndClickWithText("mat-option", jobSpec.equipment, outDir);
 
 		/**
 		 * PARTY SIZE
 		 */
-		await this.waitAndEnter("input[formcontrolname=partySize]", "4"); // 4 people
+		await this.waitAndEnter("input[formcontrolname=partySize]", "4", outDir); // 4 people
 
 		/**
 		 * CLICK BUTTON
 		 */
-		await this.waitAndClick("button#actionSearch");
+		await this.waitAndClick("button#actionSearch", outDir);
 
 		/**
 		 * LIST VIEW
 		 */
-		await this.waitAndClick(
-			//      "mat-button-toggle-group.btn-search-results-toggle mat-button-toggle:nth-child(2)"
-			"[aria-label='List View']"
-		);
+		await this.waitAndClick("[aria-label='List View']", outDir);
 
 		/**
 		 * FIND AVAILABLE SPOTS
 		 */
 		logger.debug(`Waiting for availability to load: "app-list-view"`);
-		await this.page.waitFor("app-list-view");
+		await this.page.waitForSelector("app-list-view");
 
 		// Wait for 3 seconds before all the availability spots are shown. Better idea may be to wait for all the elements to have the opacity of 1.
-		await this.page.waitFor(3000);
-		const availabilitySelector =
-			"mat-panel-description fa-icon.icon-available";
+		await this.page.waitForTimeout(3000);
+		const availabilitySelector = "mat-panel-description fa-icon.icon-available";
 		const availableIds = await this.page.$$eval(availabilitySelector, (avs) =>
 			avs.map((a) => {
 				return {
@@ -163,12 +166,13 @@ class PageCrawler {
 
 		logger.info(`Found ${availableIds.length}`);
 
-		const screenshot = path.join(this.outDir, "result.png");
+		const screenshot = path.join(outDir, "result.png");
 
 		await this.page.screenshot({ path: screenshot, fullPage: true });
 
 		return {
-			id: this.id,
+			runId: this.runId,
+			crawlId: crawlId,
 			url: this.page.url(),
 			screenshot: screenshot,
 			results: availableIds,
@@ -178,11 +182,12 @@ class PageCrawler {
 
 	private async waitAndClickWithText(
 		selector: string,
-		text: string
+		text: string,
+		outDir: string
 	): Promise<void> {
 		await this.page.screenshot({
 			path: path.join(
-				this.outDir,
+				outDir,
 				`${this.i.toString().padStart(4, "0")}.${selector}.pre.png`
 			),
 			fullPage: true,
@@ -207,14 +212,14 @@ class PageCrawler {
 
 			await this.page.screenshot({
 				path: path.join(
-					this.outDir,
+					outDir,
 					`${this.i.toString().padStart(4, "0")}.${selector}.post.png`
 				),
 				fullPage: true,
 			});
 		} catch (e) {
 			await this.page.screenshot({
-				path: path.join(this.outDir, "error.png"),
+				path: path.join(outDir, "error.png"),
 				fullPage: true,
 			});
 			logger.error(`Error reading selector ${selector}: `, e);
@@ -224,10 +229,10 @@ class PageCrawler {
 		}
 	}
 
-	private async waitAndClick(selector: string): Promise<void> {
+	private async waitAndClick(selector: string, outDir: string): Promise<void> {
 		await this.page.screenshot({
 			path: path.join(
-				this.outDir,
+				outDir,
 				`${this.i.toString().padStart(4, "0")}.${selector}.pre.png`
 			),
 			fullPage: true,
@@ -235,20 +240,20 @@ class PageCrawler {
 
 		try {
 			logger.debug(`Waiting for %s`, selector);
-			await this.page.waitFor(selector, { visible: true, timeout: 900000 });
+			await this.page.waitForSelector(selector, { visible: true, timeout: 900000 });
 
 			logger.debug(`Picking ${selector}`);
 			await this.page.click(selector);
 			await this.page.screenshot({
 				path: path.join(
-					this.outDir,
+					outDir,
 					`${this.i.toString().padStart(4, "0")}.${selector}.post.png`
 				),
 				fullPage: true,
 			});
 		} catch (e) {
 			await this.page.screenshot({
-				path: path.join(this.outDir, "error.png"),
+				path: path.join(outDir, "error.png"),
 				fullPage: true,
 			});
 			logger.error(`Error reading selector ${selector}: `, e);
@@ -258,8 +263,12 @@ class PageCrawler {
 		}
 	}
 
-	private async waitAndEnter(selector: string, value: string): Promise<void> {
-		await this.waitAndClick(selector);
+	private async waitAndEnter(
+		selector: string,
+		value: string,
+		outDir: string
+	): Promise<void> {
+		await this.waitAndClick(selector, outDir);
 		await this.page.keyboard.type(value);
 	}
 }
