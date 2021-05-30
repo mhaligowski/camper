@@ -1,8 +1,8 @@
 import { promises as fs } from "fs";
 
-import { getLogger } from "./log";
-import { run } from "./run";
-import { PageCrawlRequest } from "./crawler";
+import { getLogger } from "../log";
+import { run } from "../run";
+import { PageCrawlRequest } from "../crawler";
 
 require("dotenv").config();
 const logger = getLogger();
@@ -23,7 +23,17 @@ yargs(hideBin(process.argv))
 		"runs the local crawl with current pre-configured params.",
 		() => {},
 		async () => {
-			await fs.mkdir("out");
+			try {
+				await fs.mkdir("out");
+			} catch (e) {
+				if (e.code === "EEXIST") {
+					logger.warn("Directory already exists");
+				} else {
+					logger.error(e);
+					throw e;
+				}
+
+			}
 
 			const params = {
 				outDir: "out",
