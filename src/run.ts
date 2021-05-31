@@ -52,7 +52,8 @@ async function run(params: RunParams): Promise<PageCrawlResult[]> {
 		}
 	}
 
-	const pageCrawler = new Crawler(runId, page);
+	const runDate = new Date();
+	const pageCrawler = new Crawler(runId, runDate, page);
 
 	try {
 		return await async.mapSeries(params.jobs, async (jobParams) => {

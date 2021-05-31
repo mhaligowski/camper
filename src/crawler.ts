@@ -21,6 +21,7 @@ type ResultLine = {
 
 export type PageCrawlResult = {
 	runId: string; // run UUID
+	runTimestamp: Date;
 	crawlId: string; // id of a single crawl
 	url: string; // final URL
 	screenshot: string; // path of the resulting image
@@ -32,10 +33,12 @@ class PageCrawler {
 
 	runId: string;
 	page: Page; // Google Chrome reference
+	runTimestamp: Date;
 
-	constructor(runId: string, page: Page) {
+	constructor(runId: string, runTimestamp: Date, page: Page) {
 		this.runId = runId;
 		this.page = page;
+		this.runTimestamp = runTimestamp;
 	}
 
 	async crawl(
@@ -176,6 +179,7 @@ class PageCrawler {
 			url: this.page.url(),
 			screenshot: screenshot,
 			results: availableIds,
+			runTimestamp: this.runTimestamp,
 			...jobSpec,
 		};
 	}
@@ -240,7 +244,10 @@ class PageCrawler {
 
 		try {
 			logger.debug(`Waiting for %s`, selector);
-			await this.page.waitForSelector(selector, { visible: true, timeout: 900000 });
+			await this.page.waitForSelector(selector, {
+				visible: true,
+				timeout: 900000,
+			});
 
 			logger.debug(`Picking ${selector}`);
 			await this.page.click(selector);
