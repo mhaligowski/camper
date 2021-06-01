@@ -4,7 +4,7 @@ import puppeteer from "puppeteer";
 import path from "path";
 
 import { getLogger } from "./log";
-import { Crawler, PageCrawlResult, PageCrawlRequest } from "./crawler";
+import { Crawler, PageCrawlResult } from "./crawler";
 import { v4 } from "uuid";
 
 const logger = getLogger();
@@ -12,7 +12,8 @@ const logger = getLogger();
 export type RunParams = {
 	headless?: boolean;
 	outDir: string;
-	jobs: PageCrawlRequest[];
+	jobs: Configuration.CrawlRequest[];
+	request?: Configuration.RunRequest;
 };
 
 async function run(params: RunParams): Promise<PageCrawlResult[]> {
@@ -55,6 +56,7 @@ async function run(params: RunParams): Promise<PageCrawlResult[]> {
 	const runDate = new Date();
 	const pageCrawler = new Crawler(runId, runDate, page);
 
+	// const jobs = request.
 	try {
 		return await async.mapSeries(params.jobs, async (jobParams) => {
 			const crawlId = v4();

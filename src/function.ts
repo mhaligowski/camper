@@ -7,7 +7,7 @@ import { run, RunParams } from "./run";
 import { getLogger } from "./log";
 import { send } from "./sender";
 import { PageCrawlRequest } from "./crawler";
-import { parse } from "./function/inputparser";
+import { parse } from "./config/inputparser";
 
 import admin from "firebase-admin";
 admin.initializeApp();
