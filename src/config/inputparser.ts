@@ -9,3 +9,13 @@ export function parse(input: string): PageCrawlRequest[] {
 
 	return raw as PageCrawlRequest[];
 }
+
+export function parseToConfig(input: string): Configuration.RunRequest {
+	const raw: Configuration.RunRequest = JSON.parse(input);
+	raw.crawlRequests.forEach((element) => {
+		element.arrivalDate = new Date(element.arrivalDate);
+		element.departureDate = new Date(element.departureDate);
+	});
+
+	return raw;
+}
